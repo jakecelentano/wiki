@@ -22,15 +22,35 @@ def entry(request, name):
 
     })
 
-def search(request, query):
-    result = util.get_entry(query)
+def search(request):
+    query = request.GET['q']
+    entry = util.get_entry(query.lower())
+    name = query
 
-    if result is None:
-        return index(request) # list of results
+    if entry is None:
+        all_entries = util.list_entries()
+        matching_entries = []
+        print(all_entries)
+
+        for search_entry in all_entries:
+            print("is " + query.lower() + " in " + search_entry.lower() + "?")
+            if query.lower() in search_entry.lower():
+                matching_entries.append(search_entry)
+            else:
+                continue
+
+        print(matching_entries)
+        return render(request, "encyclopedia/searchresults.html", {
+        "name": name,
+        "entries": matching_entries
+    }) 
 
     return render(request, "encyclopedia/entry.html", {
-        "entries": util.list_entries()
+        "entrybody": markdown2.markdown(entry),
+        "name": name.capitalize(),
+
     })
+
 
 
 
