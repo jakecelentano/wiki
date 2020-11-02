@@ -1,8 +1,14 @@
 from django.shortcuts import render
+from django import forms
 
 from . import util
 
 import markdown2
+
+class NewPageForm(forms.Form):
+    name = forms.CharField(label="Title")
+    markdown = forms.CharField(widget=forms.Textarea, label="Markdown")
+
 
 
 def index(request):
@@ -30,16 +36,13 @@ def search(request):
     if entry is None:
         all_entries = util.list_entries()
         matching_entries = []
-        print(all_entries)
 
         for search_entry in all_entries:
-            print("is " + query.lower() + " in " + search_entry.lower() + "?")
             if query.lower() in search_entry.lower():
                 matching_entries.append(search_entry)
             else:
                 continue
 
-        print(matching_entries)
         return render(request, "encyclopedia/searchresults.html", {
         "name": name,
         "entries": matching_entries
@@ -48,6 +51,14 @@ def search(request):
     return render(request, "encyclopedia/entry.html", {
         "entrybody": markdown2.markdown(entry),
         "name": name.capitalize(),
+
+    })
+
+
+def new(request):
+
+    return render(request, "encyclopedia/new.html", {
+        "form": NewPageForm()
 
     })
 
