@@ -6,8 +6,9 @@ from . import util
 import markdown2
 
 class NewPageForm(forms.Form):
-    name = forms.CharField(label="Title")
-    markdown = forms.CharField(widget=forms.Textarea, label="Markdown")
+    title = forms.CharField(label="Title")
+    content = forms.CharField(widget=forms.Textarea, label="Markdown content")
+
 
 
 
@@ -56,6 +57,15 @@ def search(request):
 
 
 def new(request):
+
+    if request.method == "POST":
+        form = NewPageForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            content = markdown2.markdown(form.cleaned_data["content"])
+            util.save_entry(title, content)
+
+
 
     return render(request, "encyclopedia/new.html", {
         "form": NewPageForm()
