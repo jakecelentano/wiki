@@ -4,12 +4,11 @@ from django import forms
 from . import util
 
 import markdown2
+import random
 
 class NewPageForm(forms.Form):
     title = forms.CharField(label="Title")
     content = forms.CharField(widget=forms.Textarea, label="Markdown content")
-
-
 
 
 def index(request):
@@ -71,6 +70,18 @@ def new(request):
         "form": NewPageForm()
 
     })
+
+
+def randomPage(request):
+    all_entries = util.list_entries()
+    random_page = random.choice(all_entries)
+    entry = util.get_entry(random_page)
+    return render(request, "encyclopedia/entry.html", {
+        "entrybody": markdown2.markdown(entry),
+        "name": entry.capitalize(),
+
+    })
+
 
 
 
