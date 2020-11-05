@@ -10,20 +10,23 @@ class NewPageForm(forms.Form):
     title = forms.CharField(label="Title")
     content = forms.CharField(widget=forms.Textarea, label="Markdown content")
 
+class EditPageForm(forms.Form):
+    content = forms.CharField(widget=forms.Textarea, label="Markdown content")
 
 def index(request):
     return render(request, "encyclopedia/index.html", {
         "entries": util.list_entries()
     })
 
-
 def entry(request, name):
     entry = util.get_entry(name)
     if entry is None:
-        return index(request) # not found page
+        entrybody = "Page not found" # not found page
+    else:
+        entrybody = markdown2.markdown(entry)
 
     return render(request, "encyclopedia/entry.html", {
-        "entrybody": markdown2.markdown(entry),
+        "entrybody": entrybody,
         "name": name.capitalize(),
 
     })
@@ -81,6 +84,23 @@ def randomPage(request):
         "name": entry.capitalize(),
 
     })
+
+
+def edit(request):
+
+    if request.method == "POST":
+        form = EditPageForm(request.POST)
+        if form.is_valid():
+            content = markdown2.markdown(form.cleaned_data["content"])
+            util.save_entry(name, content)
+
+
+
+    return render(request, "encyclopedia/edit.html", {
+        "form": EditPageForm()
+
+    })
+
 
 
 
